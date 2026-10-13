@@ -30,8 +30,14 @@ def compute_one_ap( dt_masks, dt_scores, gt_masks, num_classes=3, map_resolution
             )
     return ap_matrix, ap_count_matrix
 
-def format_print( ap_matrix):
-    CLASS_NAMES = ["Divider", "PedCross", "Contour"]
+def format_print(ap_matrix, class_names=None):
+    """Print the per-class AP table.
+
+    `class_names` follows the dataset's own taxonomy (label order); it
+    defaults to nuScenes'/AV2's three classes, which is what every config in
+    `configs/` used before other datasets arrived.
+    """
+    CLASS_NAMES = list(class_names) if class_names else ["Divider", "PedCross", "Contour"]
     res_matrix = []
     table_header = ["Class", "AP@.2", "AP@.5", "AP@1.", "AP@1.5", "mAP@HARD", "mAP@EASY"]
     table_values = []

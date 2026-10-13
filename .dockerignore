@@ -1,0 +1,33 @@
+# Local Python environments (huge, and hold a conflicting torch/CUDA build)
+.venv/
+venv/
+env/
+
+# Version control / IDE
+.git/
+.gitignore
+.claude/
+.idea/
+.vscode/
+*.code-workspace
+
+# Python caches / build artifacts. The deformable-attention op is committed
+# with stale build/, dist/ and egg-info trees from Python 3.8 and 3.11 builds;
+# the image builds it fresh against its own Python 3.10.
+**/__pycache__/
+**/*.pyc
+**/*.egg-info/
+**/build/
+**/dist/
+
+# Datasets, weights, checkpoints and outputs -- mount these at runtime instead
+# of baking them into the image
+data/
+outputs/
+assets/weights/
+*.pth
+*.pkl
+*.npz
+
+# Docs / misc not needed for the build
+*.png

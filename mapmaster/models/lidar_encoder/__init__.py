@@ -1,1 +1,1 @@
-from .model import LiDARPointPillarEncoder
+from .model import LiDARPointPillarEncoder, LiDARPointPillarBEVEncoder
