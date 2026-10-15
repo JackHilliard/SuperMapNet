@@ -269,7 +269,7 @@ class PivotMapPostProcessor(nn.Module):
         # only support bs == 1
         targets_refactored = []
         targets["masks"] = targets["masks"].cuda()
-        for key in [0, 1, 2]: # map type
+        for key in range(self.num_classes):  # map type (3 on nuScenes)
             targets["points"][key]  = targets["points"][key].cuda()[0]  # [0] remove batch dim
             targets["valid_len"][key] = targets["valid_len"][key].cuda()[0]  # [0] remove batch dim
 

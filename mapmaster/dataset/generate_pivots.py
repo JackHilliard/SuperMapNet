@@ -43,8 +43,12 @@ class GenPivots:
         self.resolution = resolution
         
     def pivots_generate(self, map_vectors):
-        pivots_single_frame =  {0:[], 1:[], 2:[]}
-        lengths_single_frame =  {0:[], 1:[], 2:[]}
+        # One entry per map class, in label order: `max_pts` is the config's
+        # `pivot_conf['max_pieces']`, so this follows the taxonomy instead of
+        # assuming nuScenes' three classes (it is the same {0, 1, 2} there).
+        num_classes = len(self.max_pts)
+        pivots_single_frame = {i: [] for i in range(num_classes)}
+        lengths_single_frame = {i: [] for i in range(num_classes)}
         for ii, vec in enumerate(map_vectors):
             pts = np.array(vec["pts"]) * self.resolution  # 转成 m
             pts = pts[:, ::-1]
@@ -71,7 +75,7 @@ class GenPivots:
         
         
 
-        for cls in [0, 1, 2]:
+        for cls in range(num_classes):
             new_pts = np.array(pivots_single_frame[cls])
             if new_pts.size > 0:
                 new_pts[:, :, 0] = new_pts[:, :, 0] / (self.map_region[1]- self.map_region[0])  # normalize

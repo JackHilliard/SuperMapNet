@@ -223,7 +223,16 @@ class BeMapNetEvaluator(BaseExecutor):
         self.model.cuda()
         self.model.eval()
 
-        num_classes=3
+        # The taxonomy is the config's, not nuScenes' three classes: a
+        # CARLA run has two. `max_pieces` has one entry per class and every
+        # config already states it, so nothing needs a new key.
+        # `max_pieces` has one entry per class and every config states it,
+        # under `pivot_conf` (PivotNet/SuperMapNet) or `bezier_conf`
+        # (BeMapNet); both spell nuScenes' taxonomy as three entries.
+        cfg = exp.exp_config
+        conf = getattr(cfg, 'pivot_conf', None) or getattr(cfg, 'bezier_conf', {})
+        class_names = getattr(cfg, 'map_conf', {}).get('map_classes')
+        num_classes = len(conf.get("max_pieces", (0, 0, 0)))
         THRESHOLDS = [0.2, 0.5, 1.0, 1.5]
         ap_matrix = torch.zeros((num_classes, len(THRESHOLDS))).cuda()
         ap_count_matrix = torch.zeros((num_classes, len(THRESHOLDS))).cuda()
@@ -244,7 +253,7 @@ class BeMapNetEvaluator(BaseExecutor):
         if get_rank() == 0:
             self.logger.info("Done with inference, start evaluation later!") 
             ap = (ap_matrix / ap_count_matrix).cpu().data.numpy()
-            format_print(ap)
+            format_print(ap, class_names)
             self.logger.info(ap)
             #gt_dir = exp.exp_config.map_conf['anno_root']
             #dt_dir = exp.evaluation_save_dir

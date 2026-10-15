@@ -22,9 +22,27 @@ from mapmaster.models.backbone.sam2feature.utils import (
     MemoryEfficientSwish,
     calculate_output_image_size,
 )
-from sam2.build_sam import build_sam2
-from sam2.sam2_image_predictor import SAM2ImagePredictor
-from sam2.automatic_mask_generator import SAM2AutomaticMaskGenerator
+# SAM2 is an optional backbone: only configs/pivotnet_nuscenes_sam2.py uses
+# it, but mapmaster/models/backbone/__init__.py imports SAM2Backbone eagerly,
+# so a bare `import sam2` here makes EVERY config unimportable when the
+# package is absent. sam2 requires torch>=2.3.1 and so cannot be installed
+# alongside the mmcv-full 1.x stack the Dockerfile pins (torch 2.1.0/CUDA
+# 11.8), which is exactly that situation. Fail when a SAM2 backbone is
+# actually constructed instead.
+try:
+    from sam2.build_sam import build_sam2
+    from sam2.sam2_image_predictor import SAM2ImagePredictor
+    from sam2.automatic_mask_generator import SAM2AutomaticMaskGenerator
+except ImportError:
+    def _sam2_missing(*args, **kwargs):
+        raise ImportError(
+            'the SAM2 backbone needs the `sam2` package, which is not '
+            'installed here: it requires torch>=2.3.1, incompatible with '
+            'this environment\'s mmcv-full 1.x / torch 2.1 stack. Use one of '
+            'the ResNet, EfficientNet or Swin-T configs instead.')
+
+    build_sam2 = SAM2ImagePredictor = SAM2AutomaticMaskGenerator = \
+        _sam2_missing
 import  sys
 sys.path.append("sam2")
 import hydra
